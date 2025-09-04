@@ -209,15 +209,4 @@ async def del_administrator(id_admin: int,current_user:dict = Depends(get_curren
     return {"message":True}
 
 
-# Urgence
-@app.post("/signin/urgence")
-async def sign_in(user: UserSign):
-    #if current_user["role"] != "super admin":
-       #raise HTTPException(status_code=403,detail="Vous n'êtes pas autorisé á faire cette requete")
-    email = user.email
-    name = user.name
-    is_super_admin = user.is_super_admin
-    hashed_password = hashing_password(user.password)
-    result = await add_new_administrator(email,name,hashed_password,is_super_admin)
-    # what do with the id admin
-    return {"message": "Admintrateur ajouté !"}
+
