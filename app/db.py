@@ -1,12 +1,10 @@
 from psycopg_pool import AsyncConnectionPool
 from psycopg.types.json import Json
-from dotenv import load_dotenv
 import json
 import os
 
 
 
-load_dotenv()
 
 url = os.getenv("DATA_BASE_URL")
 
