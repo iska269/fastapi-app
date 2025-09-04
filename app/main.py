@@ -9,7 +9,7 @@ import jwt
 from jwt.exceptions import InvalidTokenError
 from contextlib import asynccontextmanager
 from app.db import pool,create_table,add_new_administrator,login_administrator,save_json_file,call_content,update_content,call_administrator,delete_admin,verify_email
-from encrypt import hashing_password,verify_password
+from app.encrypt import hashing_password,verify_password
 from app.createjson import fichier_json
 
 
