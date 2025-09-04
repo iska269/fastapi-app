@@ -3,14 +3,14 @@ from fastapi.security import OAuth2PasswordBearer
 import os
 from pydantic import BaseModel,Field,EmailStr
 from fastapi.middleware.cors import CORSMiddleware
-from recherche import recherche,generate_id
+from app.recherche import recherche,generate_id
 from datetime import datetime, timedelta, timezone
 import jwt
 from jwt.exceptions import InvalidTokenError
 from contextlib import asynccontextmanager
-from db import pool,create_table,add_new_administrator,login_administrator,save_json_file,call_content,update_content,call_administrator,delete_admin,verify_email
+from app.db import pool,create_table,add_new_administrator,login_administrator,save_json_file,call_content,update_content,call_administrator,delete_admin,verify_email
 from encrypt import hashing_password,verify_password
-from createjson import fichier_json
+from app.createjson import fichier_json
 
 
 @asynccontextmanager
