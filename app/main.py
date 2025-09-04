@@ -24,10 +24,9 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 origins = [
-    "http://localhost:3000",  # si ton frontend tourne en local
-    "http://127.0.0.1:3000",
-    "https://monfrontend.com",  # ton site en production
-    "*"
+    "https://fablab-1.onrender.com", 
+    "https://fablabadmin.onrender.com",
+
 ]
 app.add_middleware(
     CORSMiddleware,
