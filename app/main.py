@@ -97,29 +97,40 @@ async def get_front_end():
     return data    
 
 @app.post("/ajoutermateriaux")
-async def add_materials(materiaux: Materiaux,current_user:dict = Depends(get_current_user) ):
+async def add_materials(
+    materiaux: Materiaux,
+    current_user: dict = Depends(get_current_user)
+):
+    data = await call_content()
+    atelier = materiaux.atelier
+    nom = materiaux.materiaux.strip().lower()
+    nombre = materiaux.nombre
 
-        data = await call_content()
-        
-        incremment = None
-        message = "Impossible de faire l'enregistrement"
-        if not recherche(materiaux.materiaux,data[materiaux.atelier],"materiaux"):
-            data[materiaux.atelier].append({"materiaux":materiaux.materiaux,"nombre":materiaux.nombre}) 
-            await update_content(data)
-            message = "Materiaux ajouté !"
-            return{"message":message}
-        else:
-            
-            for i in range(len(data[materiaux.atelier])):
-                if data[materiaux.atelier][i-1]["materiaux"] == materiaux.materiaux:
-                    incremment = data[materiaux.atelier][i-1]["nombre"]+1
-                    data[materiaux.atelier][i-1]["nombre"] = incremment
-                    await update_content(data)
-                    message = "Materiaux ajouté !"
-                    break
+    if atelier not in data:
+        data[atelier] = []
 
+    found = False
+    for item in data[atelier]:
+        if item["materiaux"].strip().lower() == nom:
+            item["nombre"] += nombre
+            found = True
+            break
 
-        return{"message":message}       
+    if not found:
+        data[atelier].append({
+            "materiaux": materiaux.materiaux.strip(),
+            "nombre": nombre
+        })
+
+    await update_content(data)
+
+    return {
+        "message": "Matériau incrémenté" if found else "Nouveau matériau ajouté",
+        "atelier": atelier,
+        "materiaux": materiaux.materiaux,
+        "nombre": nombre
+    }
+ 
         
 @app.post("/ajouteremprunts")
 async def add_emprunts(emprunts: Emprunts,current_user:dict = Depends(get_current_user) ):
@@ -129,21 +140,34 @@ async def add_emprunts(emprunts: Emprunts,current_user:dict = Depends(get_curren
     return {"message": "Emprunt ajouté !"}
 
 @app.delete("/supprimermateriaux/{atelier}/{materiaux}")
-async def delete_materiaux(atelier: str, materiaux: str,current_user:dict = Depends(get_current_user) ):
+async def delete_materiaux(
+    atelier: str, 
+    materiaux: str,
+    current_user: dict = Depends(get_current_user)
+):
     data = await call_content()
-    #data[atelier].remove(materiaux)
-    for item in data[atelier]:  
-        if item["materiaux"] == materiaux:
-            if item["nombre"] == 1:
-                # supprimer tout le dictionnaire
-                data[atelier].remove(item)
-            else:
-                # décrémenter le nombre
+    found = False
+
+    # On crée une nouvelle liste pour éviter les problèmes d'itération
+    nouvelle_liste = []
+    for item in data.get(atelier, []):
+        if item["materiaux"].strip().lower() == materiaux.strip().lower():
+            found = True
+            if item["nombre"] > 1:
                 item["nombre"] -= 1
-            break  
+                nouvelle_liste.append(item)
+            # sinon on ne remet pas l’item (il est supprimé complètement)
+        else:
+            nouvelle_liste.append(item)
+
+    data[atelier] = nouvelle_liste
     await update_content(data)
 
-    return {"message": "Matériaux supprimé"}
+    if found:
+        return {"message": "Matériau supprimé ou décrémenté"}
+    else:
+        return {"message": "Aucun matériau trouvé"}
+
 
 @app.delete("/supprimeremprunts/{id_emprunts}")
 async def delete_emprunts(id_emprunts: int,current_user:dict = Depends(get_current_user) ):
